@@ -3,139 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCC Legend 1977 - Sistema de Tickets</title>
-    <!-- Librería para convertir HTML a Imagen -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Ticket CCC Legend 1977</title>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --p: #003366; --s: #f39c12; --f: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--f); margin: 0; padding-bottom: 20px; }
-        .header { background: var(--p); color: white; padding: 20px; text-align: center; }
-        .contenedor { padding: 20px; max-width: 500px; margin: auto; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
-        button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
-        .btn-add { background: var(--s); flex: 0.3; }
-        .lista-temp { background: white; padding: 15px; border-radius: 8px; border: 1px dashed var(--p); margin: 15px 0; }
-        .numero-tag { background: #ebf5ff; border: 1px solid var(--p); padding: 2px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-weight: bold; }
-
-        /* Estilo del Ticket (Invisible en la pantalla principal) */
-        #ticket-area { 
-            position: absolute; left: -9999px; top: 0; /* Lo sacamos de la vista */
-            width: 350px; background: white; text-align: center; font-family: 'Courier New', Courier, monospace;
+        body { font-family: sans-serif; background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        .contenedor-app {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+            text-align: center;
         }
-        .t-card { border: 2px solid #000; padding: 20px; background: white; }
-        .t-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-        .t-body { padding: 10px 0; }
-        .t-footer { border-top: 2px dashed #000; padding-top: 10px; font-size: 12px; margin-top: 10px; }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #e67e22; }
+
+        .lista-temp {
+            text-align: left;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-top: 2px solid #003366;
+            padding-top: 10px;
+        }
+
+        
+#ticket-visual {
+            display: none; 
+            width: 350px;
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .header-ticket { text-align: center; }
+        .logo-ticket { max-width: 100%; height: auto; }
+        .fecha-ticket { font-size: 12px; color: gray; }
+        .cuerpo-ticket table {
+            width: 100%;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+        }
+        .cuerpo-ticket th, .cuerpo-ticket td {
+            text-align: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .total-ticket {
+            background-color: #001f3f; 
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 10px; 
+            text-align: center;
+        }
+        .boton-generar {
+            background-color: #27ae60;
+        }
+        .boton-generar:hover {
+            background-color: #2ecc71;
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="font-size: 20px; font-weight: bold;">CCC LEGEND 1977</div>
-    <div style="font-size: 12px;">CONTROL DE VENTAS</div>
-</div>
+    <div class="contenedor-app">
+        <input type="text" id="cliente" placeholder="Nombre del Cliente">
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="numero" placeholder="Núm (00-99)" min="0" max="99">
+            <input type="number" id="monto" placeholder="Monto $">
+            <button onclick="agregarALista()" style="width: auto; background-color: #f39c12;">+</button>
+        </div>
 
-<div class="contenedor">
-    <input type="text" id="cliente" placeholder="Nombre del Cliente">
+        <div class="lista-temp" id="lista-temp">
+            <div>(Lista vacía)</div>
+        </div>
+        <hr>
+        <div id="total-previa" style="font-weight: bold; color: #001f3f; margin-bottom: 15px;">Total: $ 0.00</div>
+
+        <button class="boton-generar" onclick="prepararYCompartir()">✅ GENERAR Y COMPARTIR TICKET</button>
+    </div>
+
     
-    <div style="display: flex; gap: 10px;">
-        <input type="number" id="numero" placeholder="00-99" min="0" max="99" 
-               oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);">
-        <button class="btn-add" onclick="agregarALista()">+</button>
-    </div>
-
-    <div class="lista-temp">
-        <strong>Números en este ticket:</strong>
-        <div id="display-lista" style="margin-top: 8px;">(Vacio)</div>
-        <div id="total-temp" style="margin-top: 10px; color: var(--p); font-weight: bold; font-size: 18px;">Total: $0.00</div>
-    </div>
-
-    <button onclick="generarYCompartir()" style="background: #27ae60; padding: 15px;">
-        ✅ GENERAR Y COMPARTIR TICKET
-    </button>
-</div>
-
-<!-- EL TICKET OCULTO QUE SE CONVERTIRÁ EN IMAGEN -->
-<div id="ticket-area">
-    <div class="t-card">
-        <div class="t-header">
-            <h2 style="margin: 0;">CCC LEGEND 1977</h2>
-            <p style="margin: 5px 0;">*** TICKET DE VENTA ***</p>
-        </div>
-        <div class="t-body">
-            <p><strong>CLIENTE:</strong> <span id="t-cliente"></span></p>
-            <p><strong>NÚMEROS:</strong></p>
-            <div id="t-numeros" style="font-size: 20px; letter-spacing: 2px;"></div>
-            <h1 id="t-total" style="margin: 15px 0;"></h1>
-            <p id="t-fecha" style="font-size: 12px;"></p>
-            <p style="font-size: 18px; font-weight: bold;">¡BUENA SUERTE! 🍀</p>
-        </div>
-        <div class="t-footer">
-            Favor revisar su tiquete. No se aceptan reclamos después de retirarse. Gracias por su compra.
-        </div>
-    </div>
-</div>
-
-<script>
-    let numerosVenta = [];
-    const precioPorBoleto = 0.20;
-
-    function agregarALista() {
-        const input = document.getElementById('numero');
-        const num = input.value;
-        if(num === "" || num < 0 || num > 99) return alert("Número inválido");
-        
-        numerosVenta.push(num.padStart(2, '0'));
-        actualizarUI();
-        input.value = "";
-        input.focus();
-    }
-
-    function actualizarUI() {
-        document.getElementById('display-lista').innerHTML = numerosVenta.map(n => `<span class="numero-tag">${n}</span>`).join(' ');
-        document.getElementById('total-temp').innerText = `Total: $${(numerosVenta.length * precioPorBoleto).toFixed(2)}`;
-    }
-
-    async function generarYCompartir() {
-        if(numerosVenta.length === 0) return alert("Agrega números primero");
-
-        const cliente = document.getElementById('cliente').value || "CLIENTE GENERAL";
-        const ahora = new Date();
-        const fechaStr = ahora.toLocaleString();
-
-        // Llenar datos ocultos
-        document.getElementById('t-cliente').innerText = cliente.toUpperCase();
-        document.getElementById('t-numeros').innerText = numerosVenta.join(" - ");
-        document.getElementById('t-total').innerText = `TOTAL:$${(numerosVenta.length * precioPorBoleto).toFixed(2)}`;
-        document.getElementById('t-fecha').innerText = fechaStr;
-
-        // Convertir el ticket oculto a imagen
-        const elemento = document.getElementById('ticket-area');
-        const canvas = await html2canvas(elemento, { scale: 2 });
-        
-        canvas.toBlob(async (blob) => {
-            const file = new File([blob], 'ticket.png', { type: 'image/png' });
+<div id="ticket-visual">
+        <div class="header-ticket">
             
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Ticket CCC Legend',
-                        text: 'Aquí tiene su tiquete de compra.'
-                    });
-                    // Limpiar después de compartir
-                    numerosVenta = [];
-                    document.getElementById('cliente').value = "";
-                    actualizarUI();
-                } catch (err) {
-                    console.log("Error al compartir:", err);
-                }
-            } else {
-                alert("Tu navegador no soporta compartir archivos. Por favor, toma una captura manual.");
-            }
-        });
-    }
-</script>
+<img src="logo.png" alt="Logo CCC Legend 1977" class="logo-ticket">
+            <div class="fecha-ticket" id="fecha-ticket"></div>
+        </div>
+        <div class="cuerpo-ticket">
+            <div style="font-size: 14px; text-align: left; padding: 5px;">Cliente: <span id="nombre-cliente-ticket" style="font-weight: bold;"></span></div>
+            <table id="tabla-ticket">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-ventas-ticket">
+                </tbody>
+            </table>
+        </div>
+        
+<div class="total-ticket" id="total-ticket">
+            Total: $ 0.00
+        </div>
+    </div>
 
+    <script>
+        let ventas = [];
+        let granTotal = 0;
+
+        function agregarALista() {
+            const num = document.getElementById("numero").value;
+            const mont = document.getElementById("monto").value;
+            const clienteVal = document.getElementById("cliente").value;
+
+            if (num && mont && num.length === 2) {
+                const montoFloat = parseFloat(mont);
+                ventas.push({ numero: num, monto: montoFloat });
+                granTotal += montoFloat;
+
+                actualizarInterfaz();
+                
+            } else {
+                alert("Por favor, ingresa un número de 2 dígitos y un monto.");
+            }
+        }
+
+        function actualizarInterfaz() {
+            const lista = document.getElementById("lista-temp");
+            const totalPrevia = document.getElementById("total-previa");
+            
+            if (ventas.length === 0) {
+                lista.innerHTML = "<div>(Lista vacía)</div>";
+            } else {
+                lista.innerHTML = ventas.map(v => `<div>#${v.numero} ——— $ ${v.monto.toFixed(2)}</div>`).join("");
+            }
+            totalPrevia.innerText = `Total: $ ${granTotal.toFixed(2)}`;
+        }
+
+        function prepararYCompartir() {
+            const clienteVal = document.getElementById("cliente").value;
+
+            if (ventas.length === 0 || !clienteVal) {
+                alert("Primero agrega números y el nombre del cliente.");
+                return;
+            }
+
+            
+            document.getElementById("nombre-cliente-ticket").innerText = clienteVal;
+            const listaTicket = document.getElementById("lista-ventas-ticket");
+            listaTicket.innerHTML = ventas.map(v => `<tr><td>#${v.numero}</td><td>$ ${v.monto.toFixed(2)}</td></tr>`).join("");
+            document.getElementById("total-ticket").innerText = `Total: $ ${granTotal.toFixed(2)}`;
+            const d = new Date();
+            document.getElementById("fecha-ticket").innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+
+            
+            const ticketDiv = document.getElementById("ticket-visual");
+            ticketDiv.style.display = "block";
+
+            
+            html2canvas(ticketDiv, {
+                useCORS: true, 
+                allowTaint: true 
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    if (navigator.share) {
+                        const file = new File([blob], 'ticket.png', { type: 'image/png' });
+                        navigator.share({
+                            files: [file],
+                            title: 'Ticket de Venta CCC Legend 1977',
+                            text: 'Aquí tienes tu ticket de venta.'
+                        }).then(() => {
+                            console.log('Compartido con éxito');
+                            limpiarTodo(); 
+                        }).catch(err => {
+                            console.error('Error al compartir', err);
+                            alert("No se pudo compartir automáticamente. Puedes descargar la imagen manualmente.");
+                            
+                            const link = document.createElement('a');
+                            link.href = canvas.toDataURL();
+                            link.download = 'ticket.png';
+                            link.click();
+                            limpiarTodo();
+                        });
+                    } else {
+                        alert("Tu navegador no soporta la función de compartir archivos.");
+                        
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL();
+                        link.download = 'ticket.png';
+                        link.click();
+                        limpiarTodo();
+                    }
+                    ticketDiv.style.display = "none"; 
+                });
+            });
+        }
+
+        function limpiarTodo() {
+            ventas = [];
+            granTotal = 0;
+            document.getElementById("cliente").value = "";
+            document.getElementById("numero").value = "";
+            document.getElementById("monto").value = "";
+            actualizarInterfaz();
+        }
+    </script>
 </body>
 </html>
