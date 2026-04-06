@@ -4,82 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket CCC Legend 1977</title>
-    
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        .contenedor-app {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 350px;
-            text-align: center;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #f39c12;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover { background-color: #e67e22; }
-
-        .lista-temp {
-            text-align: left;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            border-top: 2px solid #003366;
-            padding-top: 10px;
-        }
-
-        
-#ticket-visual {
-            display: none; 
-            width: 350px;
-            background-color: white;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            position: relative;
-        }
-        .header-ticket { text-align: center; }
-        .logo-ticket { max-width: 100%; height: auto; }
-        .fecha-ticket { font-size: 12px; color: gray; }
-        .cuerpo-ticket table {
-            width: 100%;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            border-collapse: collapse;
-        }
-        .cuerpo-ticket th, .cuerpo-ticket td {
-            text-align: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .total-ticket {
-            background-color: #001f3f; 
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-            padding: 15px;
-            border-radius: 10px; 
-            text-align: center;
-        }
-        .boton-generar {
-            background-color: #27ae60;
-        }
-        .boton-generar:hover {
-            background-color: #2ecc71;
-        }
+        body { font-family: sans-serif; background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
+        .contenedor-app { background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 95%; max-width: 400px; text-align: center; box-sizing: border-box; }
+        input, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #f39c12; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .lista-temp { text-align: left; margin: 15px 0; border-top: 2px solid #003366; padding-top: 10px; min-height: 50px; }
+        #ticket-visual { display: none; width: 450px; background-color: white; padding: 20px; position: absolute; left: -9999px; }
+        .logo-ticket { width: 100%; max-width: 300px; display: block; margin: 0 auto 10px; }
+        .total-ticket { background-color: #001f3f; color: white; font-weight: bold; font-size: 22px; padding: 15px; border-radius: 15px; text-align: center; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -87,44 +23,29 @@
     <div class="contenedor-app">
         <input type="text" id="cliente" placeholder="Nombre del Cliente">
         <div style="display: flex; gap: 10px;">
-            <input type="number" id="numero" placeholder="Núm (00-99)" min="0" max="99">
+            <input type="number" id="numero" placeholder="Núm" oninput="if(this.value.length > 2) this.value = this.value.slice(0,2);">
             <input type="number" id="monto" placeholder="Monto $">
-            <button onclick="agregarALista()" style="width: auto; background-color: #f39c12;">+</button>
+            <button onclick="agregarALista()" style="width: 60px;">+</button>
         </div>
 
         <div class="lista-temp" id="lista-temp">
-            <div>(Lista vacía)</div>
+            <div style="color: gray; text-align: center;">(Sin números anotados)</div>
         </div>
-        <hr>
-        <div id="total-previa" style="font-weight: bold; color: #001f3f; margin-bottom: 15px;">Total: $ 0.00</div>
 
-        <button class="boton-generar" onclick="prepararYCompartir()">✅ GENERAR Y COMPARTIR TICKET</button>
+        <div id="total-previa" style="font-weight: bold; color: #003366; font-size: 20px; margin-bottom: 15px;">Total: $ 0.00</div>
+        <button onclick="prepararYCompartir()" style="background-color: #27ae60;">✅ GENERAR Y COMPARTIR TICKET</button>
     </div>
 
-    
-<div id="ticket-visual">
-        <div class="header-ticket">
-            
-<img src="logo.png" alt="Logo CCC Legend 1977" class="logo-ticket">
-            <div class="fecha-ticket" id="fecha-ticket"></div>
-        </div>
-        <div class="cuerpo-ticket">
-            <div style="font-size: 14px; text-align: left; padding: 5px;">Cliente: <span id="nombre-cliente-ticket" style="font-weight: bold;"></span></div>
-            <table id="tabla-ticket">
-                <thead>
-                    <tr>
-                        <th>Número</th>
-                        <th>Monto</th>
-                    </tr>
-                </thead>
-                <tbody id="lista-ventas-ticket">
-                </tbody>
-            </table>
-        </div>
-        
-<div class="total-ticket" id="total-ticket">
-            Total: $ 0.00
-        </div>
+    <!-- TICKET OCULTO PARA LA FOTO -->
+    <div id="ticket-visual">
+        <img src="logo.png" class="logo-ticket">
+        <div id="fecha-ticket" style="text-align: center; color: gray; font-size: 14px;"></div>
+        <div style="font-size: 18px; margin: 10px 0;"><b>Cliente:</b> <span id="nombre-cliente-ticket"></span></div>
+        <table>
+            <thead><tr><th>Número</th><th>Monto</th></tr></thead>
+            <tbody id="lista-ventas-ticket"></tbody>
+        </table>
+        <div class="total-ticket" id="total-ticket"></div>
     </div>
 
     <script>
@@ -132,89 +53,73 @@
         let granTotal = 0;
 
         function agregarALista() {
-            const num = document.getElementById("numero").value;
-            const mont = document.getElementById("monto").value;
-            const clienteVal = document.getElementById("cliente").value;
+            const nInput = document.getElementById("numero");
+            const mInput = document.getElementById("monto");
+            const num = nInput.value;
+            const mont = parseFloat(mInput.value);
 
-            if (num && mont && num.length === 2) {
-                const montoFloat = parseFloat(mont);
-                ventas.push({ numero: num, monto: montoFloat });
-                granTotal += montoFloat;
-
-                actualizarInterfaz();
-                
-            } else {
-                alert("Por favor, ingresa un número de 2 dígitos y un monto.");
-            }
-        }
-
-        function actualizarInterfaz() {
-            const lista = document.getElementById("lista-temp");
-            const totalPrevia = document.getElementById("total-previa");
-            
-            if (ventas.length === 0) {
-                lista.innerHTML = "<div>(Lista vacía)</div>";
-            } else {
-                lista.innerHTML = ventas.map(v => `<div>#${v.numero} ——— $ ${v.monto.toFixed(2)}</div>`).join("");
-            }
-            totalPrevia.innerText = `Total: $ ${granTotal.toFixed(2)}`;
-        }
-
-        function prepararYCompartir() {
-            const clienteVal = document.getElementById("cliente").value;
-
-            if (ventas.length === 0 || !clienteVal) {
-                alert("Primero agrega números y el nombre del cliente.");
+            if (!num || isNaN(mont)) {
+                alert("Ingresa número y monto válido.");
                 return;
             }
 
-            
-            document.getElementById("nombre-cliente-ticket").innerText = clienteVal;
-            const listaTicket = document.getElementById("lista-ventas-ticket");
-            listaTicket.innerHTML = ventas.map(v => `<tr><td>#${v.numero}</td><td>$ ${v.monto.toFixed(2)}</td></tr>`).join("");
+            // LÓGICA DE REPETIDOS 🧐
+            const index = ventas.findIndex(v => v.numero === num);
+            if (index !== -1) {
+                const conf = confirm(`El #${num} ya está anotado con $ ${ventas[index].monto.toFixed(2)}.\n\n¿Deseas SUMAR el nuevo monto? (Aceptar para sumar, Cancelar para reemplazar)`);
+                if (conf) {
+                    ventas[index].monto += mont;
+                } else {
+                    ventas[index].monto = mont;
+                }
+            } else {
+                ventas.push({ numero: num, monto: mont });
+            }
+
+            // LIMPIAR CAMPOS 🧹
+            nInput.value = "";
+            mInput.value = "";
+            nInput.focus();
+
+            actualizarVista();
+        }
+
+        function actualizarVista() {
+            granTotal = ventas.reduce((s, v) => s + v.monto, 0);
+            document.getElementById("total-previa").innerText = `Total: $ ${granTotal.toFixed(2)}`;
+            const lista = document.getElementById("lista-temp");
+            lista.innerHTML = ventas.length === 0 ? "<div>(Vacío)</div>" : 
+                ventas.map(v => `<div style="padding:5px; border-bottom:1px solid #eee;"><b>#${v.numero}</b> ——— $ ${v.monto.toFixed(2)}</div>`).join("");
+        }
+
+        function prepararYCompartir() {
+            const cliente = document.getElementById("cliente").value;
+            if (!cliente || ventas.length === 0) { alert("Llena el nombre y agrega números."); return; }
+
+            document.getElementById("nombre-cliente-ticket").innerText = cliente;
             document.getElementById("total-ticket").innerText = `Total: $ ${granTotal.toFixed(2)}`;
-            const d = new Date();
-            document.getElementById("fecha-ticket").innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+            document.getElementById("fecha-ticket").innerText = new Date().toLocaleString();
+            document.getElementById("lista-ventas-ticket").innerHTML = ventas.map(v => `<tr><td>#${v.numero}</td><td>$ ${v.monto.toFixed(2)}</td></tr>`).join("");
 
-            
-            const ticketDiv = document.getElementById("ticket-visual");
-            ticketDiv.style.display = "block";
+            const ticket = document.getElementById("ticket-visual");
+            ticket.style.display = "block";
 
-            
-            html2canvas(ticketDiv, {
-                useCORS: true, 
-                allowTaint: true 
-            }).then(canvas => {
+            html2canvas(ticket, { scale: 2 }).then(canvas => {
                 canvas.toBlob(blob => {
+                    const file = new File([blob], "ticket.png", { type: "image/png" });
                     if (navigator.share) {
-                        const file = new File([blob], 'ticket.png', { type: 'image/png' });
-                        navigator.share({
-                            files: [file],
-                            title: 'Ticket de Venta CCC Legend 1977',
-                            text: 'Aquí tienes tu ticket de venta.'
-                        }).then(() => {
-                            console.log('Compartido con éxito');
-                            limpiarTodo(); 
-                        }).catch(err => {
-                            console.error('Error al compartir', err);
-                            alert("No se pudo compartir automáticamente. Puedes descargar la imagen manualmente.");
-                            
-                            const link = document.createElement('a');
-                            link.href = canvas.toDataURL();
-                            link.download = 'ticket.png';
-                            link.click();
+                        navigator.share({ files: [file] }).then(() => {
                             limpiarTodo();
+                            ticket.style.display = "none";
                         });
                     } else {
-                        alert("Tu navegador no soporta la función de compartir archivos.");
-                        
-                        const link = document.createElement('a');
+                        alert("Función de compartir no disponible. Se descargará la imagen.");
+                        const link = document.createElement("a");
+                        link.download = "ticket.png";
                         link.href = canvas.toDataURL();
-                        link.download = 'ticket.png';
                         link.click();
                         limpiarTodo();
                     }
-                    ticketDiv.style.display = "none"; 
                 });
             });
         }
@@ -223,9 +128,7 @@
             ventas = [];
             granTotal = 0;
             document.getElementById("cliente").value = "";
-            document.getElementById("numero").value = "";
-            document.getElementById("monto").value = "";
-            actualizarInterfaz();
+            actualizarVista();
         }
     </script>
 </body>
