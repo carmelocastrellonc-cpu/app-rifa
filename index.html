@@ -3,274 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Ventas 00-99</title>
+    <title>CCC Legend 1977 - Sistema de Tickets</title>
+    <!-- Librería para convertir HTML a Imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --p: #2c3e50; --s: #3498db; --f: #f4f7f6; --rojo: #ff4757; --verde: #2ed573; --amarillo: #ffa502; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--f); margin: 0; padding-bottom: 80px; color: #2f3542; }
-        
-        /* Navegación */
-        nav { display: flex; position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; height: 65px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        nav button { flex: 1; border: none; background: none; font-size: 11px; color: #a4b0be; transition: 0.3s; }
-        nav button.activo { color: var(--s); font-weight: bold; }
-        nav button span { font-size: 20px; display: block; margin-bottom: 2px; }
+        :root { --p: #003366; --s: #f39c12; --f: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--f); margin: 0; padding-bottom: 20px; }
+        .header { background: var(--p); color: white; padding: 20px; text-align: center; }
+        .contenedor { padding: 20px; max-width: 500px; margin: auto; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        button { background: var(--p); color: white; font-weight: bold; border: none; cursor: pointer; }
+        .btn-add { background: var(--s); flex: 0.3; }
+        .lista-temp { background: white; padding: 15px; border-radius: 8px; border: 1px dashed var(--p); margin: 15px 0; }
+        .numero-tag { background: #ebf5ff; border: 1px solid var(--p); padding: 2px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-weight: bold; }
 
-        .seccion { padding: 20px; display: none; animation: fadeIn 0.3s; }
-        .seccion.activa { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Estilos de Tarjetas y Formulario */
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        h2 { margin-top: 0; color: var(--p); border-left: 4px solid var(--s); padding-left: 10px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dcdde1; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .btn-p { width: 100%; background: var(--s); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        /* Grid de Cierre */
-        .grid-numeros { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 15px; }
-        .num-item { padding: 8px 2px; text-align: center; border: 1px solid #eee; font-size: 13px; border-radius: 6px; background: white; }
-        .r-medio { background: var(--amarillo); color: black; }
-        .r-alto { background: var(--verde); color: white; }
-        .r-critico { background: var(--rojo); color: white; }
-
-        /* Tabla de Ganadores */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        .total-row { font-weight: bold; background: #e1f5fe; }
-
-        /* Modal */
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:200; backdrop-filter: blur(3px); }
-        .modal-contenido { background:white; margin:15% auto; padding:20px; width:85%; border-radius:15px; max-height: 80vh; overflow-y: auto; }
+        /* Estilo del Ticket (Invisible en la pantalla principal) */
+        #ticket-area { 
+            position: absolute; left: -9999px; top: 0; /* Lo sacamos de la vista */
+            width: 350px; background: white; text-align: center; font-family: 'Courier New', Courier, monospace;
+        }
+        .t-card { border: 2px solid #000; padding: 20px; background: white; }
+        .t-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+        .t-body { padding: 10px 0; }
+        .t-footer { border-top: 2px dashed #000; padding-top: 10px; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- VENDER -->
-    <section id="vender" class="seccion activa">
-        <h2>💰 Registrar Venta</h2>
-        <div class="card">
-            <input type="text" id="v-nombre" placeholder="Nombre del cliente">
-            <input type="number" id="v-numero" placeholder="Número (00-99)" min="0" max="99">
-            <input type="number" id="v-cantidad" placeholder="Cantidad de números" oninput="actualizarCosto(this.value)">
-            <p id="v-costo" style="font-weight: bold; color: var(--s);">Costo Total: $0.00</p>
-            <button class="btn-p" onclick="guardarVenta()">Registrar e Imprimir</button>
-        </div>
-    </section>
+<div class="header">
+    <div style="font-size: 20px; font-weight: bold;">CCC LEGEND 1977</div>
+    <div style="font-size: 12px;">CONTROL DE VENTAS</div>
+</div>
 
-    <!-- HISTORIAL -->
-    <section id="historial" class="seccion">
-        <h2>📋 Ventas del Día</h2>
-        <input type="text" id="buscador" placeholder="🔍 Buscar por nombre o número..." oninput="filtrarHistorial()">
-        <div id="lista-ventas"></div>
-    </section>
-
-    <!-- CIERRE -->
-    <section id="cierres" class="seccion">
-        <h2>🔘 Cierre y Premios</h2>
-        <div class="card">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
-                <input type="number" id="g1" placeholder="1er">
-                <input type="number" id="g2" placeholder="2do">
-                <input type="number" id="g3" placeholder="3er">
-            </div>
-            <button class="btn-p" style="background: var(--p);" onclick="calcularPremios()">Calcular Ganadores 🏆</button>
-        </div>
-        
-        <div id="resumen-grid" class="grid-numeros"></div>
-        
-        <button onclick="archivarDia()" style="margin-top: 20px; width: 100%; padding: 15px; background: #95a5a6; color: white; border: none; border-radius: 8px;">📁 Archivar y Limpiar Día</button>
-    </section>
-
-    <!-- SECCIÓN DE RESULTADOS (NUEVA PESTAÑA) -->
-    <section id="resultados" class="seccion">
-        <button onclick="irA('cierres')" style="background: none; border: none; color: var(--s); font-weight: bold; margin-bottom: 10px;">← Volver al Cierre</button>
-        <h2>🏆 Resultados del Sorteo</h2>
-        <div id="tabla-ganadores-contenedor"></div>
-    </section>
-
-    <!-- Modal Editar -->
-    <div id="modal-edit" class="modal">
-        <div class="modal-contenido">
-            <h3>Editar Registro</h3>
-            <input type="hidden" id="edit-id">
-            <input type="text" id="edit-nombre">
-            <input type="number" id="edit-numero">
-            <input type="number" id="edit-cantidad">
-            <button onclick="guardarEdicion()" class="btn-p">Guardar Cambios</button>
-            <button onclick="cerrarModal()" style="width:100%; margin-top:10px; background:none; border:none; color: #777;">Cancelar</button>
-        </div>
+<div class="contenedor">
+    <input type="text" id="cliente" placeholder="Nombre del Cliente">
+    
+    <div style="display: flex; gap: 10px;">
+        <input type="number" id="numero" placeholder="00-99" min="0" max="99" 
+               oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);">
+        <button class="btn-add" onclick="agregarALista()">+</button>
     </div>
 
-    <nav>
-        <button onclick="irA('vender')" class="tab-btn activo"><span>💰</span>Vender</button>
-        <button onclick="irA('historial')" class="tab-btn"><span>📋</span>Historial</button>
-        <button onclick="irA('cierres')" class="tab-btn"><span>🔘</span>Cierre</button>
-    </nav>
+    <div class="lista-temp">
+        <strong>Números en este ticket:</strong>
+        <div id="display-lista" style="margin-top: 8px;">(Vacio)</div>
+        <div id="total-temp" style="margin-top: 10px; color: var(--p); font-weight: bold; font-size: 18px;">Total: $0.00</div>
+    </div>
 
-    <script>
-        let ventas = JSON.parse(localStorage.getItem('ventas_hoy')) || [];
-        const VALOR_NUMERO = 0.20;
+    <button onclick="generarYCompartir()" style="background: #27ae60; padding: 15px;">
+        ✅ GENERAR Y COMPARTIR TICKET
+    </button>
+</div>
 
-        function irA(id) {
-            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
-            document.getElementById(id).classList.add('activa');
-            if(id === 'historial') filtrarHistorial();
-            if(id === 'cierres') dibujarGridCierre();
-        }
+<!-- EL TICKET OCULTO QUE SE CONVERTIRÁ EN IMAGEN -->
+<div id="ticket-area">
+    <div class="t-card">
+        <div class="t-header">
+            <h2 style="margin: 0;">CCC LEGEND 1977</h2>
+            <p style="margin: 5px 0;">*** TICKET DE VENTA ***</p>
+        </div>
+        <div class="t-body">
+            <p><strong>CLIENTE:</strong> <span id="t-cliente"></span></p>
+            <p><strong>NÚMEROS:</strong></p>
+            <div id="t-numeros" style="font-size: 20px; letter-spacing: 2px;"></div>
+            <h1 id="t-total" style="margin: 15px 0;"></h1>
+            <p id="t-fecha" style="font-size: 12px;"></p>
+            <p style="font-size: 18px; font-weight: bold;">¡BUENA SUERTE! 🍀</p>
+        </div>
+        <div class="t-footer">
+            Favor revisar su tiquete. No se aceptan reclamos después de retirarse. Gracias por su compra.
+        </div>
+    </div>
+</div>
 
-        function actualizarCosto(val) {
-            const total = (val * VALOR_NUMERO).toFixed(2);
-            document.getElementById('v-costo').innerText = `Costo Total: $${total}`;
-        }
+<script>
+    let numerosVenta = [];
+    const precioPorBoleto = 0.20;
 
-        function formatearNumero(n) { return n.toString().padStart(2, '0'); }
+    function agregarALista() {
+        const input = document.getElementById('numero');
+        const num = input.value;
+        if(num === "" || num < 0 || num > 99) return alert("Número inválido");
+        
+        numerosVenta.push(num.padStart(2, '0'));
+        actualizarUI();
+        input.value = "";
+        input.focus();
+    }
 
-        function guardarVenta() {
-            const nom = document.getElementById('v-nombre').value.trim();
-            const num = document.getElementById('v-numero').value;
-            const can = document.getElementById('v-cantidad').value;
+    function actualizarUI() {
+        document.getElementById('display-lista').innerHTML = numerosVenta.map(n => `<span class="numero-tag">${n}</span>`).join(' ');
+        document.getElementById('total-temp').innerText = `Total: $${(numerosVenta.length * precioPorBoleto).toFixed(2)}`;
+    }
 
-            if(!nom || num === "" || !can) return alert("Completa todos los datos");
+    async function generarYCompartir() {
+        if(numerosVenta.length === 0) return alert("Agrega números primero");
 
-            const v = {
-                id: Date.now(),
-                nombre: nom,
-                numero: formatearNumero(num),
-                cantidad: parseInt(can),
-                total: (can * VALOR_NUMERO).toFixed(2),
-                fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
+        const cliente = document.getElementById('cliente').value || "CLIENTE GENERAL";
+        const ahora = new Date();
+        const fechaStr = ahora.toLocaleString();
 
-            ventas.push(v);
-            localStorage.setItem('ventas_hoy', JSON.stringify(ventas));
-            generarTicket(v);
-            document.getElementById('v-nombre').value = "";
-            document.getElementById('v-numero').value = "";
-            document.getElementById('v-cantidad').value = "";
-            document.getElementById('v-costo').innerText = "Costo Total: $0.00";
-            alert("✅ Venta registrada");
-        }
+        // Llenar datos ocultos
+        document.getElementById('t-cliente').innerText = cliente.toUpperCase();
+        document.getElementById('t-numeros').innerText = numerosVenta.join(" - ");
+        document.getElementById('t-total').innerText = `TOTAL:$${(numerosVenta.length * precioPorBoleto).toFixed(2)}`;
+        document.getElementById('t-fecha').innerText = fechaStr;
 
-        function dibujarGridCierre() {
-            const container = document.getElementById('resumen-grid');
-            container.innerHTML = "";
-            const conteo = {};
-            for(let i=0; i<100; i++) conteo[formatearNumero(i)] = 0;
-            ventas.forEach(v => conteo[v.numero] += v.cantidad);
-
-            for(let i=0; i<100; i++) {
-                const n = formatearNumero(i);
-                const cant = conteo[n];
-                const div = document.createElement('div');
-                div.className = 'num-item';
-                if(cant >= 100 && cant < 150) div.classList.add('r-medio');
-                else if(cant >= 150 && cant <= 200) div.classList.add('r-alto');
-                else if(cant > 200) div.classList.add('r-critico');
-                div.innerHTML = `<b>${n}</b><br><small>${cant}</small>`;
-                container.appendChild(div);
-            }
-        }
-
-        function calcularPremios() {
-            const res1 = formatearNumero(document.getElementById('g1').value);
-            const res2 = formatearNumero(document.getElementById('g2').value);
-            const res3 = formatearNumero(document.getElementById('g3').value);
-
-            if(!res1 || !res2 || !res3) return alert("Ingresa los 3 números ganadores");
-
-            const ganadores = [];
-            const agrupado = {};
-
-            ventas.forEach(v => {
-                let premioXUnidad = 0;
-                let puesto = "";
-                if(v.numero === res1) { premioXUnidad = 11; puesto = "1er Premio"; }
-                else if(v.numero === res2) { premioXUnidad = 3; puesto = "2do Premio"; }
-                else if(v.numero === res3) { premioXUnidad = 2; puesto = "3er Premio"; }
-
-                if(premioXUnidad > 0) {
-                    const monto = v.cantidad * premioXUnidad;
-                    ganadores.push({ ...v, puesto, monto });
-                    agrupado[v.nombre] = (agrupado[v.nombre] || 0) + monto;
+        // Convertir el ticket oculto a imagen
+        const elemento = document.getElementById('ticket-area');
+        const canvas = await html2canvas(elemento, { scale: 2 });
+        
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'ticket.png', { type: 'image/png' });
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Ticket CCC Legend',
+                        text: 'Aquí tiene su tiquete de compra.'
+                    });
+                    // Limpiar después de compartir
+                    numerosVenta = [];
+                    document.getElementById('cliente').value = "";
+                    actualizarUI();
+                } catch (err) {
+                    console.log("Error al compartir:", err);
                 }
-            });
-
-            mostrarResultados(ganadores, agrupado);
-            irA('resultados');
-        }
-
-        function mostrarResultados(lista, totales) {
-            let html = `<h3>Detalle por Ticket</h3><table><tr><th>Cliente</th><th>Puesto</th><th>Cant.</th><th>Premio</th></tr>`;
-            lista.forEach(g => {
-                html += `<tr><td>${g.nombre}</td><td>${g.puesto}</td><td>${g.cantidad}</td><td>$${g.monto}</td></tr>`;
-            });
-            html += `</table><h3 style="margin-top:20px;">Totales por Persona</h3><table><tr><th>Nombre</th><th>Total a Pagar</th></tr>`;
-            for(let nombre in totales) {
-                html += `<tr class="total-row"><td>${nombre}</td><td>$${totales[nombre]}</td></tr>`;
+            } else {
+                alert("Tu navegador no soporta compartir archivos. Por favor, toma una captura manual.");
             }
-            html += `</table>`;
-            document.getElementById('tabla-ganadores-contenedor').innerHTML = html;
-        }
+        });
+    }
+</script>
 
-        function filtrarHistorial() {
-            const bus = document.getElementById('buscador').value.toLowerCase();
-            const div = document.getElementById('lista-ventas');
-            div.innerHTML = "";
-            ventas.filter(v => v.nombre.toLowerCase().includes(bus) || v.numero.includes(bus)).reverse().forEach(v => {
-                const item = document.createElement('div');
-                item.className = 'card';
-                item.innerHTML = `<div style="display:flex; justify-content:space-between;">
-                    <div><b>${v.nombre}</b><br>Número: ${v.numero} (${v.cantidad} boletos)</div>
-                    <div style="text-align:right"><b style="color:var(--s)">$${v.total}</b><br><small>${v.fecha}</small></div>
-                </div>
-                <div style="margin-top:10px;">
-                    <button onclick="abrirEditor(${v.id})" style="padding:5px 10px; border:1px solid #ddd; background:none; border-radius:4px;">Editar</button>
-                    <button onclick="reimprimir(${v.id})" style="padding:5px 10px; border:1px solid var(--s); background:none; color:var(--s); border-radius:4px;">Ticket</button>
-                </div>`;
-                div.appendChild(item);
-            });
-        }
-
-        function abrirEditor(id) {
-            const v = ventas.find(x => x.id === id);
-            document.getElementById('edit-id').value = v.id;
-            document.getElementById('edit-nombre').value = v.nombre;
-            document.getElementById('edit-numero').value = v.numero;
-            document.getElementById('edit-cantidad').value = v.cantidad;
-            document.getElementById('modal-edit').style.display = "block";
-        }
-
-        function cerrarModal() { document.getElementById('modal-edit').style.display = "none"; }
-
-        function guardarEdicion() {
-            const id = parseInt(document.getElementById('edit-id').value);
-            const idx = ventas.findIndex(x => x.id === id);
-            const can = document.getElementById('edit-cantidad').value;
-            ventas[idx].nombre = document.getElementById('edit-nombre').value;
-            ventas[idx].numero = formatearNumero(document.getElementById('edit-numero').value);
-            ventas[idx].cantidad = parseInt(can);
-            ventas[idx].total = (can * VALOR_NUMERO).toFixed(2);
-            localStorage.setItem('ventas_hoy', JSON.stringify(ventas));
-            cerrarModal();
-            irA('vender');
-            alert("Editado correctamente");
-        }
-
-        function generarTicket(v) {
-            const texto = `VENTA DE NUMEROS\n----------------\nCliente: ${v.nombre}\nNúmero: ${v.numero}\nCant. Boletos: ${v.cantidad}\nTotal: $${v.total}\nHora: ${v.fecha}\n----------------\n¡Buena Suerte!`;
-            if(navigator.share) navigator.share({ title: 'Ticket', text: texto });
-            else alert(texto);
-        }
-
-        function reimprimir(id) { generarTicket(ventas.find(x => x.id === id)); }
-
-        function archivarDia() {
-            if(!confirm("¿Seguro que quieres borrar las ventas de hoy? Asegúrate de haber guardado los resultados.")) return;
-            localStorage.removeItem('ventas_hoy');
-            ventas = [];
-            irA('vender');
-            alert("Día reiniciado correctamente.");
-        }
-    </script>
 </body>
 </html>
